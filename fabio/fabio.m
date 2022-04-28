@@ -38,3 +38,13 @@ SLActivateGripper(1);
 goto(can_on_boxes_approach);
 goto(can_bin);
 SLActivateGripper(0);
+
+goto(yellow_bottle);
+goto(red_bottle_edge_0);
+goto(red_bottle_edge_1);
+SLActivateGripper(1);
+goto(red_bottle_edge_2);
+goto(can_bin);
+goto(bottle_bin);
+SLActivateGripper(0);
+

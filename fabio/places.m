@@ -21,3 +21,7 @@ red_can_2 = [0.79,0.62,-0.05,-2.8455,0.2839,-0.8280]';
 
 can_on_boxes = [0.02, 0.465,0.12,0,pi,pi/2]';
 can_on_boxes_approach = can_on_boxes + z_approach;
+
+red_bottle_edge_0 = [0.20,0.72,0.05,0,2*pi/3,pi/2]';
+red_bottle_edge_1 = [0.28,0.715,-0.05,0,5*pi/6,pi/2]';
+red_bottle_edge_2 = [0.2,0.73,0.3,0,5*pi/6,pi/2]';
