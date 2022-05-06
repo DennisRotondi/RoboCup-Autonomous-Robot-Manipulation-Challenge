@@ -3,9 +3,20 @@ function ptCloudWorld = get_pcloud_from_photo
     persistent pointCloudSub
     pointCloudSub = rossubscriber('/camera/depth/points');
     pointcloud = receive(pointCloudSub);
-    tr = getTransform(rostf,'world','camera_link');
-    attemptn=0;
 
+    tftree=rostf;
+    camera_transf = getTransform(tftree,'world','camera_link');
+    attemptn=0;
+    
+    while(size(camera_transf) == [0,1])
+        pause(1)
+        camera_transf = getTransform(tftree,'world','camera_link');
+        attemptn=attemptn+1;
+        if attemptn > 5
+            ptCloudWorld = "fail";
+            return
+        end
+    end
     camera_transl = camera_transf.Transform.Translation;
     camera_rotation = camera_transf.Transform.Rotation;
     camera_quaternions = [camera_rotation.W, camera_rotation.X,...
@@ -23,5 +34,7 @@ function ptCloudWorld = get_pcloud_from_photo
     tform = rigid3d(rotm,[translVect(1),translVect(2),translVect(3)]);
     % Transform point cloud to world frame
     ptCloudWorld = pctransform(ptCloud,tform);
+    indx = find(ptCloudWorld.Location(:,3) > -0.05);
+    ptCloudWorld = select(ptCloudWorld,indx);
 end
 
