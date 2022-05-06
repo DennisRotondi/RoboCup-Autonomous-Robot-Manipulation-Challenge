@@ -14,7 +14,7 @@ for i=1:5
         [prediction, bboxes, scores, labels] = classify(net,rgb);
     end
     if size(bboxes,1) == 0
-        goto(init_pose+[0;-0.07;-0.04;0;0;0]);
+        goto(init_pose+[0;-0.09;-0.04;0;0;0]);
         rgb=get_image('r');
         di=get_image('d');
         [prediction, bboxes, scores, labels] = classify(net,rgb);

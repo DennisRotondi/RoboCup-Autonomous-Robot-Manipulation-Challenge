@@ -25,11 +25,12 @@ function points = p3D_from_bboxes(bboxes,depth_img,frame_id)
         pt.Point.Y = tmp_p(2);
         pt.Point.Z = tmp_p(3);
         
-        tr = getTransform(rostf,frame_id,'camera_link');
+        tftree = rostf;
+        tr = getTransform(tftree,frame_id,'camera_link');
         attemptn=0;
         while(size(tr) == [0,1])
             pause(1)
-            tr = getTransform(rostf,frame_id,'camera_link');
+            tr = getTransform(tftree,frame_id,'camera_link');
             attemptn=attemptn+1;
             if attemptn > 5
                 points = "fail";

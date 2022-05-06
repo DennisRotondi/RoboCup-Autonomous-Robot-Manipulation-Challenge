@@ -12,6 +12,11 @@ for i=1:numClusters
         item = obj;
     end
 end
+for i=1:4
+    pcomp = get_direction(item);
+    [model,inlierIndices] = pcfitcylinder(item,0.02,pcomp);
+    item = select(pc_filtered,inlierIndices);
+end
 end
 
 %object_2 = [0.205+0.14,-0.102+0.11,-0.03,0, pi, 0]';
