@@ -35,10 +35,8 @@ function p3D = p3D_from_p2D(point,depth_img,frame_id)
         end
     end
     tfpt = apply(tr,pt); %Transform the ROS message to the 'frame_id' frame 
-
     p3D=[tfpt.Point.X;
-                 tfpt.Point.Y;
-                 tfpt.Point.Z];
-    end
+         tfpt.Point.Y;
+         tfpt.Point.Z];
 end
 
