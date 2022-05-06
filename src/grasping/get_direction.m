@@ -1,6 +1,6 @@
-function outputArg1 = get_direction(point)
+function pc = get_direction(ptcloud)
 %GOTO_PLACE Summary of this function goes here
-%   NEED IMPLEMENTATION
-outputArg1 = false
+pcs = pca(readXYZ(ptcloud))
+pc = pcs(:,1)
 end
 
