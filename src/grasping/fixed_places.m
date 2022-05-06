@@ -48,6 +48,6 @@ object_3_approach = object_3+z_approach;
 object_4 = [0.205+0.15,-0.175,-0.04,0,pi,pi/2]';
 object_4_approach = object_4+z_approach;
 
-object_5 = [0.26,-0.44,0.06,0,pi,pi/2]'; %% might collid if it's a bottle
+object_5 = [0.26,-0.44,0.1,0,pi,pi/2]'; %% might not pick up if it's a can
 object_5_approach = object_5+z_approach;
 
