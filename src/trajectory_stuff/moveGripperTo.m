@@ -1,4 +1,4 @@
-function [done] = moveGripperTo(robot, trajectoryAction, trajectoryGoal, jointSubscriber, gripperPosition, gripperRotation)
+function [resultMsg,resultState] = moveGripperTo(robot, trajectoryAction, trajectoryGoal, jointSubscriber, gripperPosition, gripperRotation)
 %MOVEGRIPPERTO Moves gripper to specified location
 %   Arguments are:
 %       robot: rigidBodyTree of the model
@@ -19,11 +19,12 @@ function [done] = moveGripperTo(robot, trajectoryAction, trajectoryGoal, jointSu
     
     server_response = waitForServer(trajectoryAction,5);
     if(server_response)
-        sendGoal(trajectoryAction,trajectoryGoal);
+        [resultMsg,resultState] = sendGoalAndWait(trajectoryAction,trajectoryGoal);
         done = true;
     else
         print('no connection to server');
-        done = false;
+        resultMsg = 0;
+        resultState = 0;
     end
     
     end
