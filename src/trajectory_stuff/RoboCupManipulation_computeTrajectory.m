@@ -29,7 +29,7 @@ function [q,qd,qdd,trajTimes] = MWRoboCupChallenge_computeTrajectory(currentRobo
 
         % Compute corresponding joint configurations
         robotPos = zeros(size(T,3),numel(jointInit));
-        initialGuess = wrapToPi(jointInit);
+        initialGuess = wrapToPi(jointInit); 
         for i=1:size(T,3)            
             robotPos(i,:) = ik(endEffector,T(:,:,i),weights,initialGuess);
             robotPos(i,:) = wrapToPi(robotPos(i,:));
@@ -52,5 +52,44 @@ function [q,qd,qdd,trajTimes] = MWRoboCupChallenge_computeTrajectory(currentRobo
         qd = robotVel';
         qdd = robotAcc';    
         
+        [q,qd,qdd,trajTimes] = fixHardBounds(q,qd,qdd,trajTimes);
+end
+
+function [qNew,qdNew,qddNew,trajTimesNew] = fixHardBounds(q,qd,qdd,trajTimes)
+%FIXHARDBOUNDS fixing velocities to respect maximum velocities values, this
+%will change total trajectory time
+
+qd_max = 3;
+
+time_step = trajTimes(2)-trajTimes(1);
+
+qdNew = zeros([size(qd(:,1))]);
+
+idxNew=1;
+for idx=1:length(qd)
+    qdNorm = abs(qd(:,idx)/qd_max);
+    biggest = max(qdNorm);
+    if biggest>1
+        additionalSteps = ceil(biggest);
+        for i=0:additionalSteps-1
+            qdNew(:,idxNew)=qd(:,idx)/additionalSteps;
+            idxNew = idxNew+1;
+        end
+    else
+        qdNew(:,idxNew)=qd(:,idx);
+        idxNew = idxNew+1;
+    end
+end
+
+
+trajTimesNew = 0:0.1:0.1*(length(qdNew)-1);
+
+qNew = q(:,1);
+for idx=2:length(qdNew)
+    qNew(:,idx) = qNew(:,idx-1)+qdNew(:,idx)*time_step;
+end
+
+qddTemp = diff(qdNew')/time_step;
+qddNew = [zeros(1,length(qNew(:,1)));qddTemp]';
 
 end
