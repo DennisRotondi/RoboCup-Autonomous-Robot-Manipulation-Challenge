@@ -9,7 +9,7 @@ function [q,qd,qdd,trajTimes] = MWRoboCupChallenge_computeTrajectory(currentRobo
 %   https://www.mathworks.com/help/robotics/referencelist.html?type=function&category=manipulators
 
 
-        timestep = 0.1;
+        timestep = 0.05;
         ik = inverseKinematics('RigidBodyTree',robot);
         ik.SolverParameters.AllowRandomRestart = false;
         weights = [1 1 1 1 1 1];
@@ -21,7 +21,7 @@ function [q,qd,qdd,trajTimes] = MWRoboCupChallenge_computeTrajectory(currentRobo
 
         % Time intervals
         timeInterval = [0;trajDuration];
-        trajTimes = timeInterval(1):timestep:timeInterval(end);
+        trajTimes = timeInterval(1):timestep:timeInterval(end)-timestep*20;
 
         % Retrieve task configurations between initial and final
         [s,sd,sdd] = trapveltraj(timeInterval',numel(trajTimes));
@@ -58,13 +58,12 @@ end
 function [qNew,qdNew,qddNew,trajTimesNew] = fixHardBounds(q,qd,qdd,trajTimes)
 %FIXHARDBOUNDS fixing velocities to respect maximum velocities values, this
 %will change total trajectory time
-
 qd_max = 3;
 
-time_step = trajTimes(2)-trajTimes(1);
+timestep = trajTimes(2)-trajTimes(1);
 
+%fixing velocities following hard bound qd_max
 qdNew = zeros([size(qd(:,1))]);
-
 idxNew=1;
 for idx=1:length(qd)
     qdNorm = abs(qd(:,idx)/qd_max);
@@ -81,15 +80,24 @@ for idx=1:length(qd)
     end
 end
 
-
-trajTimesNew = 0:0.1:0.1*(length(qdNew)-1);
-
+%getting new q trajectory
+trajTimesNew = 0:timestep:timestep*(length(qdNew)-1);
 qNew = q(:,1);
-for idx=2:length(qdNew)
-    qNew(:,idx) = qNew(:,idx-1)+qdNew(:,idx)*time_step;
-end
 
-qddTemp = diff(qdNew')/time_step;
-qddNew = [zeros(1,length(qNew(:,1)));qddTemp]';
+for idx=2:length(qdNew)
+    qNew(:,idx) = qNew(:,idx-1)+qdNew(:,idx)*(trajTimesNew(idx)-trajTimesNew(idx-1));
+end
+%applying gaussian filter to q trajectory to smooth out discontinuities
+window = 10;
+qNew = smoothdata([ones(length(q(:,1)),window).*qNew(:,1), qNew, ones(length(q(:,1)),window).*qNew(:,end)],2,'gaussian',int8(1.5*window));
+
+trajTimesNew = 0:timestep:timestep*(length(qNew)-1);
+
+%getting new velocities and accellerations
+qdTemp = diff(qNew');
+qdNew = [zeros(1,length(q(:,1)));qdTemp]'./[timestep,diff(trajTimesNew)];
+
+qddTemp = diff(qdNew');
+qddNew = [zeros(1,length(q(:,1)));qddTemp]'./[timestep,diff(trajTimesNew)];
 
 end
