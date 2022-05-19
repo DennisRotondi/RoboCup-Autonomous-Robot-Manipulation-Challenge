@@ -56,7 +56,7 @@ for i=1:5
         goto(best_object);
         SLActivateGripper(1);
         goto(best_object_approach);
-        goto(init_pose);
+        %goto(init_pose);
         goto(can_bin)
         SLActivateGripper(0);
     % if bottle ...
@@ -65,7 +65,7 @@ for i=1:5
         goto(best_object);
         SLActivateGripper(1);
         goto(best_object_approach);
-        goto(init_pose);
+        %goto(init_pose);
         goto(bottle_bin)
         SLActivateGripper(0);
     end
