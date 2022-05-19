@@ -1,0 +1,39 @@
+function [q,qd,qdd,trajTimes] = MyComputeTrajectory(currentRobotJConfig, finalPosition, finalOrientation, robot, endEffector, trajDuration, mapRobot)
+%MYCOMPUTETRAJECTORY Summary of this function goes here
+%   Detailed explanation goes here
+    timestep = trajDuration/98; %100 are the points returned by MyCartesianPath
+    ik = inverseKinematics('RigidBodyTree',robot);
+    ik.SolverParameters.AllowRandomRestart = false;
+    weights = [1 1 1 1 1 1];
+
+    trajTimes = 0:timestep:trajDuration;
+    trajTimes = trajTimes(1:end);
+
+    %Initial task config
+    jointInit = wrapToPi(currentRobotJConfig');
+    %Final task config
+    desiredGripperPose = trvec2tform(finalPosition)*axang2tform([1 0 0 finalOrientation(1)])*axang2tform([0 1 0 finalOrientation(2)])*axang2tform([0 0 1 finalOrientation(3)]);
+    desiredGripperPose
+    [T, ~, ~] = transformtraj(taskInit,taskFinal,timeInterval,trajTimes);
+    robotPos = zeros(size(T,3),numel(jointInit));
+    initialGuess = wrapToPi(jointInit); 
+    for i=1:size(T,3)            
+        robotPos(i,:) = ik(endEffector,T(:,:,i),weights,initialGuess);
+        robotPos(i,:) = wrapToPi(robotPos(i,:));
+        initialGuess = robotPos(i,:);            
+    end
+    jointFinal = robotPos
+    %jointFinal = ik(endEffector,desiredGripperPose,weights,[0,0,0,0,0,0,0]);
+    getTransform(robot,jointFinal,endEffector)
+    % compute cartesian path
+    q = myGetTrajectory(mapRobot,jointInit,jointFinal)';
+    qd = [zeros(length(jointInit),1),diff(q,1,2)];
+    qdd = [zeros(length(jointInit),1),diff(qd,1,2)];
+    
+end
+
+
+
+% prova con jacobiana analitica per massimizzare distanza dalle singolarità
+
+% puoi provare con metodo repulsivo dalle singolatrità

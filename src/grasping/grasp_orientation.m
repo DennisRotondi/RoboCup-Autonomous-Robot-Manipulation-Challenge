@@ -15,13 +15,17 @@ function Ree = grasp_orientation(v,alpha) % v is my y-axis
     
     % choose alpha0 such that if alpha == 0 approach direction is vertical
     syms a
-    alpha0_ = eval(vpa(solve(l(3)*cos(a)-m(3)*sin(a) == 0)));
-    if l(3)*sin(alpha0_(1)) + m(3)*sin(alpha0_(1)) < 0
-        alpha0 = alpha0_(1);
-    else 
-        alpha0 = alpha0_(2);
+    alpha0_ = eval(vpa(solve(l(3)*cos(a)-m(3)*sin(a) == 0,a)));
+    if size(alpha0_,1)>1
+        alpha0_
+        if l(3)*sin(alpha0_(1)) + m(3)*sin(alpha0_(1)) < 0
+            alpha0 = alpha0_(1);
+        else 
+            alpha0 = alpha0_(2);
+        end
+    else
+        alpha0 = 0;
     end
-
     Ry = [ cos(alpha+alpha0),  0, sin(alpha+alpha0);
             0,     1,  0;
          -sin(alpha+alpha0),  0, cos(alpha+alpha0)];
